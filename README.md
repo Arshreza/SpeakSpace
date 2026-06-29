@@ -1,274 +1,323 @@
-# SpeakSpace
+# SpeckSpace — AI-Powered Interview Preparation Platform
 
-**AI-powered group discussion and interview practice platform** — sharpen your communication, get live feedback, and track your progress through structured sessions with peers.
+A full-stack, production-ready platform built with the MERN stack that helps developers and students ace their technical interviews using AI-powered mock interviews, resume analysis, coding practice, and personalized career coaching.
 
 ---
 
-## What it does
+## Features
 
-SpeakSpace lets users practice the skills that matter in group discussions, mock interviews, and panel debates. Three distinct roles shape the experience:
+- **AI Mock Interviews** — HR, Behavioral, Technical, Coding, System Design with GPT-4
+- **Voice Interviews** — Speech-to-text (Whisper) + text-to-speech (OpenAI TTS) real-time flow
+- **Resume Analyzer** — ATS scoring, grammar analysis, keyword extraction, AI suggestions
+- **AI Resume Builder** — Generate professional resumes from your profile
+- **Coding Interview** — Monaco editor, multi-language, AI code review + complexity analysis
+- **AI Career Coach** — Chat-based coaching for resume, salary, interview strategy
+- **Company Database** — Top 50 companies with interview processes, FAQs, community experiences
+- **Leaderboard** — Weekly/Monthly/All-time rankings with XP and achievements
+- **Learning Center** — Courses, roadmaps, quizzes, flashcards
+- **Dashboard Analytics** — Weekly progress, skill radar chart, achievement tracking
+- **Subscription** — Stripe + Razorpay integration (Free / Premium / Enterprise)
+- **Admin Panel** — Full user, company, interview, payment management
 
-| Role | What they do |
+---
+
+## Tech Stack
+
+### Frontend
+| Technology | Purpose |
 |---|---|
-| **Moderator** | Creates and manages sessions, sets topics, controls pacing |
-| **Participant** | Joins sessions to practice speaking, get evaluated, and improve |
-| **Evaluator** | Observes sessions, scores participants on a rubric, gives feedback |
+| React 19 + Vite | Core framework |
+| TypeScript | Type safety |
+| TailwindCSS | Styling |
+| ShadCN UI | Component library |
+| React Router v6 | Routing |
+| TanStack Query | Server state management |
+| Zustand | Client state management |
+| Framer Motion | Animations |
+| React Hook Form + Zod | Forms + validation |
+| Monaco Editor | Code editor |
+| Recharts | Charts and analytics |
 
-Every user goes through a short onboarding that picks their role and tailors the dashboard, navigation, and available features accordingly.
-
----
-
-## Tech stack
-
-| Layer | Technology |
+### Backend
+| Technology | Purpose |
 |---|---|
-| Framework | Next.js 15.2 (App Router) |
-| Language | TypeScript |
-| UI | React 19, Tailwind CSS, Shadcn/ui, Radix UI |
-| Auth | Firebase Authentication (email/password + Google OAuth) |
-| Database | Firebase Firestore |
-| Video | Jitsi Meet (embedded via external API) |
-| Real-time chat | Firestore subcollections (live `onSnapshot`) |
-| Animations | Framer Motion |
-| Icons | Lucide React |
+| Node.js + Express | Server framework |
+| MongoDB + Mongoose | Database |
+| JWT | Authentication |
+| Redis (ioredis) | Caching + sessions |
+| Socket.io | Real-time features |
+| Multer + Cloudinary | File uploads |
+| OpenAI GPT-4 | AI features |
+| Whisper API | Speech-to-text |
+| OpenAI TTS | Text-to-speech |
+| Nodemailer | Email service |
+| Passport.js | OAuth (Google + GitHub) |
+| Stripe + Razorpay | Payments |
 
 ---
 
-## Pages
-
-### Public
-| Route | Description |
-|---|---|
-| `/` | Redirect — sends authenticated users to dashboard, guests to landing |
-| `/landing` | Marketing page with features, how it works, testimonials |
-| `/auth/login` | Email/password + Google sign-in |
-| `/auth/register` | Account creation with terms acceptance |
-| `/auth/forgot-password` | Firebase password reset email |
-
-### Authenticated (all roles)
-| Route | Description |
-|---|---|
-| `/dashboard` | Role-specific dashboard with stats and quick actions |
-| `/live-sessions` | Browse, create, join, and manage sessions |
-| `/session?id=...` | Live session room — Jitsi video + real-time chat |
-| `/leaderboard` | Top 20 users ranked by score, with podium for top 3 |
-| `/profile` | Personal profile with role-specific tabs and edit dialog |
-| `/practice` | Quick session browser and session creator |
-| `/resources` | Guides, videos, templates — filterable, addable to Firestore |
-| `/create-meeting` | Long-form group discussion creator |
-
-### Participant only
-| Route | Description |
-|---|---|
-| `/resume` | Upload resume → get AI feedback; view personalized tips |
-
----
-
-## Role-based features
-
-### Moderator (purple)
-- Dashboard: sessions hosted, live count, total participants, manage buttons
-- Live sessions: "Create Session" primary CTA, manage/edit/delete own sessions
-- Profile: Stats tab with session metrics and moderation tips
-- No Resume page
-
-### Participant (blue/cyan)
-- Dashboard: skill progress bars, open sessions list, sessions joined count
-- Live sessions: join sessions, see recommended tab
-- Profile: Progress tab (skill bars), History tab, Resume Tips tab
-- Resume page: AI-powered upload and feedback
-- Session room: feedback panel showing real-time scores
-
-### Evaluator (amber)
-- Dashboard: sessions evaluated count, rubric preview widget, browse sessions
-- Live sessions: observe sessions (no join action), "To Evaluate" tab
-- Session room: dedicated scoring panel (1–5 per criterion + notes)
-- Profile: Progress and History tabs
-- No Resume page
-
----
-
-## Onboarding
-
-First-time users see a full-screen 3-step setup before accessing the app:
-
-1. **Role selection** — Moderator, Participant, or Evaluator with distinct visuals
-2. **Role-specific questions** — session types (Moderator), prep goals (Participant), expertise areas (Evaluator)
-3. **Style/focus** — run length (Moderator), focus areas (Participant), feedback style (Evaluator)
-4. **Unique completion screen** per role — purple/blue/amber themed with relevant widgets
-
-Onboarding can be skipped at any point. Completion is tracked in Firestore and `localStorage`.
-
----
-
-## Firestore schema
+## Project Structure
 
 ```
-users/{uid}
-  name, email, avatar, role, preferredRole
-  skills[], bio, score, sessions, badges[]
-  improvement, onboardingCompleted, createdAt, updatedAt
-
-sessions/{id}
-  title, description, date, time
-  maxParticipants, evaluators
-  tags[], status (live | upcoming | ended)
-  participants[], createdBy, createdAt
-
-sessions/{id}/messages/{msgId}
-  text, userId, userName, timestamp
-
-meetings/{id}
-  topic, description, maxParticipants, rules
-  scheduledAt, createdBy, status, participants[]
-
-resources/{id}
-  title, description, type, tags[], createdAt
-
-resumeAnalyses/{id}
-  userId, score, feedback[], timestamp
+SpeckSpace/
+├── client/                    # React frontend
+│   └── src/
+│       ├── components/
+│       │   ├── ui/            # ShadCN components
+│       │   └── shared/        # Shared components
+│       ├── pages/
+│       │   ├── auth/          # Auth pages
+│       │   └── admin/         # Admin panel
+│       ├── layouts/           # Page layouts
+│       ├── hooks/             # Custom hooks
+│       ├── contexts/          # React contexts
+│       ├── services/          # API services
+│       ├── store/             # Zustand stores
+│       ├── utils/             # Utilities
+│       └── types/             # TypeScript types
+├── server/                    # Node.js backend
+│   ├── controllers/           # Request handlers
+│   ├── routes/                # Route definitions
+│   ├── middlewares/           # Express middlewares
+│   ├── models/                # Mongoose models
+│   ├── services/              # Business logic
+│   ├── utils/                 # Helpers
+│   ├── config/                # DB, Redis, Cloudinary
+│   ├── validators/            # Joi validators
+│   ├── sockets/               # Socket.io handlers
+│   └── jobs/                  # Background jobs
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
 
-## Getting started
+## Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- A Firebase project with Auth and Firestore enabled
+- Node.js 20+
+- MongoDB 7+
+- Redis 7+
+- OpenAI API key
+- Cloudinary account
+- Stripe account (for payments)
 
-### Setup
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Arshreza/SpeakSpace.git
-cd SpeakSpace
-npm install --legacy-peer-deps
+git clone https://github.com/Arshreza/SpeckSpace.git
+cd SpeckSpace
 ```
 
-Create `.env.local` in the root with your Firebase config:
+### 2. Set up the server
+
+```bash
+cd server
+npm install
+cp .env.example .env
+# Fill in all environment variables in .env
+```
+
+### 3. Set up the client
+
+```bash
+cd client
+npm install
+```
+
+### 4. Environment Variables
+
+Create `server/.env` from the `.env.example` template:
 
 ```env
-NEXT_PUBLIC_FIREBASE_API_KEY=...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-NEXT_PUBLIC_FIREBASE_DATABASE_URL=...
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-NEXT_PUBLIC_FIREBASE_APP_ID=...
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=...
+# Server
+PORT=5000
+NODE_ENV=development
+
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/speckspace
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key-change-this
+JWT_REFRESH_SECRET=your-refresh-token-secret-change-this
+JWT_EXPIRE=15m
+JWT_REFRESH_EXPIRE=7d
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Client URL
+CLIENT_URL=http://localhost:3000
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Email (Gmail example)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+EMAIL_FROM=SpeckSpace <noreply@speckspace.io>
+
+# OpenAI
+OPENAI_API_KEY=sk-your-openai-key
+
+# ElevenLabs (optional, fallback to OpenAI TTS)
+ELEVENLABS_API_KEY=your-elevenlabs-key
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_your-stripe-key
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+
+# Razorpay
+RAZORPAY_KEY_ID=rzp_test_your-key
+RAZORPAY_KEY_SECRET=your-razorpay-secret
 ```
 
-### Run
+### 5. Seed the database
 
 ```bash
+cd server
+node utils/seedData.js
+```
+
+This seeds:
+- 10 major tech companies (Google, Amazon, Microsoft, Meta, Netflix, etc.)
+- 5 achievement types
+- Admin user (admin@speckspace.io / Admin@123)
+
+### 6. Run the application
+
+**Development (two terminals):**
+
+```bash
+# Terminal 1 - Server
+cd server
+npm run dev
+
+# Terminal 2 - Client
+cd client
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000)
 
-### Build for production
+### 7. Run with Docker
 
 ```bash
+# From root directory
+docker-compose up --build
+```
+
+---
+
+## API Documentation
+
+All API endpoints are prefixed with `/api/v1`.
+
+### Authentication
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /auth/register | Register new user |
+| POST | /auth/login | Login |
+| GET | /auth/logout | Logout |
+| POST | /auth/refresh-token | Refresh access token |
+| POST | /auth/forgot-password | Send reset email |
+| PUT | /auth/reset-password/:token | Reset password |
+| GET | /auth/verify-email/:token | Verify email |
+| GET | /auth/me | Get current user |
+| GET | /auth/google | Google OAuth |
+| GET | /auth/github | GitHub OAuth |
+
+### Resume
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /resume/upload | Upload PDF resume |
+| POST | /resume/:id/analyze | Trigger AI analysis |
+| GET | /resume | List resumes |
+| GET | /resume/:id | Get resume + analysis |
+| DELETE | /resume/:id | Delete resume |
+| POST | /resume/generate | Generate resume from profile |
+
+### Interview
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /interview/create | Create interview session |
+| GET | /interview | List user interviews |
+| GET | /interview/:id | Get interview details |
+| POST | /interview/:id/start | Start interview |
+| POST | /interview/:id/answer/:qId | Submit answer |
+| POST | /interview/:id/complete | Complete interview |
+| GET | /interview/:id/report | Get full report |
+
+### Companies
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /company | List all companies |
+| GET | /company/:slug | Get company details |
+| POST | /company/:slug/experience | Add interview experience |
+
+### AI
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /ai/coach | Chat with AI coach |
+| POST | /ai/roadmap | Generate roadmap |
+| GET | /ai/roadmap | Get saved roadmap |
+| POST | /ai/tts | Text to speech |
+| POST | /ai/stt | Speech to text |
+
+---
+
+## Deployment
+
+### Frontend → Vercel
+```bash
+cd client
 npm run build
-npm start
+# Deploy dist/ to Vercel
 ```
+
+### Backend → Render
+- Connect GitHub repo
+- Root directory: `server`
+- Build: `npm install`
+- Start: `node server.js`
+- Add all environment variables in Render dashboard
+
+### Database → MongoDB Atlas
+- Create cluster at mongodb.com
+- Add connection string to MONGODB_URI
+
+### Cache → Redis Cloud
+- Create database at redis.com
+- Add connection URL to REDIS_URL
+
+### Media → Cloudinary
+- Create account at cloudinary.com
+- Add cloud name, API key, and API secret
 
 ---
 
-## Firebase setup
+## Roles
 
-1. **Authentication** — enable Email/Password and Google providers
-2. **Firestore** — create a database in production mode, then add these security rules:
-
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId;
-    }
-    match /sessions/{sessionId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.createdBy;
-      match /messages/{messageId} {
-        allow read, write: if request.auth != null;
-      }
-    }
-    match /meetings/{meetingId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.createdBy;
-    }
-    match /resources/{resourceId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
-    }
-    match /resumeAnalyses/{analysisId} {
-      allow read, write: if request.auth.uid == resource.data.userId;
-    }
-  }
-}
-```
-
-3. **Firestore indexes** — the leaderboard query (`orderBy("score", "desc")`) and resume analyses query (`where userId + orderBy timestamp`) may require composite indexes. Firebase will show a link in the browser console to create them automatically on first run.
-
----
-
-## Project structure
-
-```
-SpeakSpace/
-├── app/
-│   ├── auth/               # Login, register, forgot-password, template-selection
-│   ├── dashboard/          # Role-specific dashboards
-│   ├── live-sessions/      # Session browser + CRUD
-│   ├── session/            # Live Jitsi room + chat
-│   ├── leaderboard/        # Rankings
-│   ├── profile/            # User profile + edit
-│   ├── resume/             # Resume feedback (participants)
-│   ├── practice/           # Practice session browser
-│   ├── resources/          # Learning resources
-│   ├── create-meeting/     # Group discussion creator
-│   ├── landing/            # Public marketing page
-│   ├── layout.tsx          # Root layout with ThemeProvider + Toaster
-│   └── page.tsx            # Smart redirect
-├── components/
-│   ├── ui/                 # Shadcn/Radix primitives
-│   ├── auth-provider.tsx   # Firebase auth context
-│   ├── auth-wall.tsx       # Route protection
-│   ├── main-nav.tsx        # Role-filtered navigation
-│   ├── user-nav.tsx        # Avatar dropdown
-│   ├── first-time-setup.tsx # Onboarding flow
-│   ├── chat-room.tsx       # Realtime Firestore chat
-│   ├── edit-profile-dialog.tsx
-│   └── star-rating.tsx
-├── lib/
-│   ├── firebase.ts         # Firebase app init
-│   └── utils.ts            # cn() helper
-├── hooks/
-│   └── use-toast.ts
-├── styles/
-│   └── globals.css
-└── types/
-    └── global.d.ts         # Jitsi window type
-```
-
----
-
-## Design system
-
-All pages use a consistent dark premium theme:
-
-- **Background**: `bg-slate-950`
-- **Cards**: `bg-slate-900/60 border border-white/[0.07] rounded-2xl`
-- **Inputs**: `bg-slate-800/50 border border-white/[0.08] text-white`
-- **Dialogs**: `bg-slate-900 border border-white/[0.08]`
-- **Role accents**: Moderator = purple, Participant = blue/cyan, Evaluator = amber/orange
+| Role | Capabilities |
+|---|---|
+| **Student** | All interview, resume, coding, AI coach features |
+| **Recruiter** | View candidate reports (future feature) |
+| **Admin** | Full admin panel — users, companies, interviews, payments |
 
 ---
 
 ## License
 
-MIT
+MIT © 2026 SpeckSpace
